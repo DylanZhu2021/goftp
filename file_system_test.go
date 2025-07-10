@@ -96,7 +96,7 @@ func TestMkdirRmdir(t *testing.T) {
 
 		os.Remove("testroot/git-ignored/foodir")
 
-		_, err = c.Mkdir("git-ignored/foodir")
+		err = c.Mkdir("git-ignored/foodir")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -120,15 +120,10 @@ func TestMkdirRmdir(t *testing.T) {
 			t.Error("directory should be gone")
 		}
 
-		cwd, err := c.Getwd()
+		os.Remove(`testroot/git-ignored/dir-with-"`)
+		err = c.Mkdir(`git-ignored/dir-with-"`)
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		os.Remove(`testroot/git-ignored/dir-with-"`)
-		dir, err := c.Mkdir(`git-ignored/dir-with-"`)
-		if dir != `git-ignored/dir-with-"` && dir != path.Join(cwd, `git-ignored/dir-with-"`) {
-			t.Errorf("Unexpected dir-with-quote value: %s", dir)
 		}
 
 		if c.numOpenConns() != len(c.freeConnCh) {
@@ -453,7 +448,7 @@ func TestGetwd(t *testing.T) {
 
 		// cd into quote directory so we can test Getwd's quote handling
 		os.Remove(`testroot/git-ignored/dir-with-"`)
-		dir, err := c.Mkdir(`git-ignored/dir-with-"`)
+		err = c.Mkdir(`git-ignored/dir-with-"`)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -463,14 +458,14 @@ func TestGetwd(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = pconn.sendCommandExpected(replyFileActionOkay, "CWD %s", dir)
+		err = pconn.sendCommandExpected(replyFileActionOkay, "CWD %s")
 		c.returnConn(pconn)
 
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		dir, err = c.Getwd()
+		dir, err := c.Getwd()
 		if dir != `git-ignored/dir-with-"` && dir != path.Join(cwd, `git-ignored/dir-with-"`) {
 			t.Errorf("Unexpected dir-with-quote value: %s", dir)
 		}

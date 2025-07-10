@@ -49,29 +49,24 @@ func (c *Client) Rename(from, to string) error {
 
 // Mkdir creates directory "path". The returned string is how the client
 // should refer to the created directory.
-func (c *Client) Mkdir(path string) (string, error) {
+func (c *Client) Mkdir(path string) error {
 	pconn, err := c.getIdleConn()
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	defer c.returnConn(pconn)
 
 	code, msg, err := pconn.sendCommand("MKD %s", path)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	if code != replyDirCreated && code != replyFileActionOkay {
-		return "", ftpError{code: code, msg: msg}
+		return ftpError{code: code, msg: msg}
 	}
 
-	dir, err := extractDirName(msg)
-	if err != nil {
-		return "", err
-	}
-
-	return dir, nil
+	return nil
 }
 
 // Rmdir removes directory "path".
