@@ -62,7 +62,7 @@ func (c *Client) Mkdir(path string) (string, error) {
 		return "", err
 	}
 
-	if code != replyDirCreated {
+	if code != replyDirCreated && code != replyFileActionOkay {
 		return "", ftpError{code: code, msg: msg}
 	}
 
